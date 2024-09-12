@@ -1,1 +1,1 @@
-vllm serve /root/race_llm/models/Qwen2-0.5B-Instruct  --tensor-parallel-size 1 --host 127.0.0.1 --port 9990  --gpu-memory-utilization 0.9 --trust-remote-code --served-model-name starchat
+vllm serve /root/autodl-tmp/models/Qwen2-0.5B-Instruct  --tensor-parallel-size 1 --host 127.0.0.1 --port 9990  --gpu-memory-utilization 0.9 --trust-remote-code --served-model-name starchat
