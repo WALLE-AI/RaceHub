@@ -99,6 +99,22 @@ def inference(text):
     ]
     response = predict(messages, model, tokenizer)
     return response
+
+def merge_lora_inference():
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers.generation import GenerationConfig
+    
+    merge_model = "/home/dataset-s3-0/gaojing/models/checkpoints/qwen2.5_lora/checkpoint-2130_merge"
+    tokenizer = AutoTokenizer.from_pretrained(merge_model, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        merge_model,
+        device_map="auto",
+        trust_remote_code=True
+    ).eval()
+    test_list = ["建筑防水材料如何选择","如何区分防水涂料是否符合防水等级"]
+    for text in test_list:
+        response, history = model.chat(tokenizer, text, history=None)
+        print(response)
     
 if __name__ == "__main__":
     llm_race_test_datasets()
