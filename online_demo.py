@@ -14,7 +14,7 @@ st.title(":sunglasses: _StarChat_")
 
 
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "Qwen/Qwen2-72B-Instruct"
+    st.session_state["openai_model"] = "Qwen2.5-72B-Instruct-AWQ"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -30,7 +30,7 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        stream = LLMApi.llm_client("siliconflow").chat.completions.create(
+        stream = LLMApi.llm_client("localhost").chat.completions.create(
             model=st.session_state["openai_model"],
             messages=[
                 {"role": m["role"], "content": m["content"]}

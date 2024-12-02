@@ -24,7 +24,7 @@ MODEL_NAME_LIST = {
         "Qwen/Qwen2-72B-Instruct":"Qwen/Qwen2-72B-Instruct"
     },
     "localhost":{
-      "starchat":"starchat"  
+      "qwen2":"qwen2"  
     }
     
 }
@@ -47,7 +47,7 @@ class LLMApi():
             base_url = "https://api.openai.com/v1"
             api_key  = os.environ.get("OPENAI_API_KEY")
         else:
-            base_url = "http://127.0.0.1:9990/v1"
+            base_url = "http://36.103.239.202:9005/v1"
             api_key = "empty"
         return base_url,api_key  
    

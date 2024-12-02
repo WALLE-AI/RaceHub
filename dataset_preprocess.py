@@ -125,6 +125,29 @@ def ner_data_example_process():
 
 
 def data_example_process():
+    '''
+    ##https://www.kaggle.com/datasets/suchintikasarkar/sentiment-analysis-for-mental-health 文本匹配的数据
+      ## https://github.com/jeffheaton/app_generative_ai/tree/main
+        training_data = [{"instruction": "判断以下医疗文本的科室分类","input": "患者出现头痛、恶心、视物模糊等症状","output": "神经内科"},# 更多训练样本...
+    "conversations":[{"from":"human","value":"问：左踝关节扭伤5年未痊愈。2009年左踝扭伤至今已5年多，走路没多久就会酸疼，肿胀，如果走的时间稍>微长点，接下来的几天脚会很不舒服，酸疼，有些肿胀，早上起来肿胀会消退些。不走路的时候踝关节里也会有不舒服的感觉。2009年1月因在不平坦的路上走路崴了脚，当时没有疼痛，于是没有进行治疗，不久后
+        跑步就出现左踝关节肿胀疼痛，敷了几剂药和泡了点中药后消了一点肿，疼痛也不明显，以为没有大碍，因为当时还在上学就没有再做进一步治疗。但是后来发现走路之后会酸痛肿胀，晚上会比较明显，早上起床>就会消点肿，休息过后肿痛会好转，于是又继续敷药，但也没什么起色。2009年9月，大学军训了一个星期左右，前几天要长期站着，后来因为脚疼也申请了休息。大学期间也免不了要做些运动，但还是尽量避免，
+      发觉踝关节很容易就累，就酸痛，不能走很长时间。后来也做过理疗，针灸，但是效果不明显，只是感觉舒服一些。后来因为要出国读书就停止了治疗，平时也不做运动，尽量避免长时间走路。2012年7月做了核磁
+      共振，到医院做了理疗，敷了药，"},{"from":"gpt","value":"答：作为医生，我建议您尽快前往医院进行进一步的检查和治疗。根据描述，您的左踝关节扭伤已经持续了5年，而且症状似乎没有得到缓解。这可能
+      是由于初始扭伤时没有及时进行治疗，导致伤程加长并引起了慢性炎症。\n\n您之前尝试过一些治疗方法，如敷药、泡中药、理疗和针灸，但效果不明显。这可能是因为病因尚未明确，治疗方法不够全面和专业。>因此，我建议您前往医院接受全面的检查，可能包括X光、核磁共振或其他相关检查，以了解关节结构是否受损。\n\n一旦明确了病因，您可以与医生一起制定治疗计划。治疗可能包括物理治疗、康复训练、药物治
+      疗或手术等，具体根据您的病情来定。同时，您也需要按医生建议进行生活方式调整，如适当休息、避免过度活动或长时间站立、做适当的运动来增强踝关节的稳定性。\n\n最重要的是，不要忽视疼痛和不适感，>及时就医是为了防止病情进一步恶化并提高痊愈的机会。祝您早日康复！"}]
+    '''
+    ##微调与不微调两种作为 
+    # 1、一种使用通过API+prompt的方式完成对应NLP任务（NER 文本匹配文本 summary问题等等） 
+    # 2、通过微调+prompt+rag（搜索api）的方式解决精度问题
+    test_system_prompt = '''
+    你是一个智能助手，你能够根据用户输入判断出文本的意图
+    用户输入：{text}
+    按如下json格式输出
+    {
+      "intent":""
+    }
+    '''
+    system_prompt = "你是一个智能助手，能够高质量判断出文本的对话意图"
     data_dict_list = []
     for data  in data_example["data"]:
         data_dict = {}
@@ -133,9 +156,21 @@ def data_example_process():
         data_dict["label"] = data['label']
         data_dict["record_dt_info"] = data['record_dt_info']
         data_dict['对话角色']=data['对话角色']
+        if data["对话角色"] == "CLIENT":
+          ##这个任务明显就是多轮对话来判断对应意图表达
+          _data_dict = {
+            "instruction": system_prompt,
+            "input":data["record_dt_info"],
+            "output":data["label"]
+          }
+          data_dict['instruction_data'] =_data_dict
+        else:
+          data_dict["instruction_data"] = ""
         data_dict_list.append(data_dict)
-    pd_data = pd.DataFrame(data_dict_list)
-    pd_data.to_csv("data/data_example.csv",index=False)
+    save_data = "data/example_test/test_intent.jsonl"
+    with open(save_data,"w",encoding="utf-8") as file:
+      file.write(json.dumps(data_dict_list,ensure_ascii=False,indent=4))
+      
     
 def read_dataset_file_to_intent_dataset(data_file_path):
     '''
@@ -235,9 +270,10 @@ def dataset_jsonl_transfer(origin_path, new_path):
 
 if __name__ == "__main__":
     loguru.logger.info("race hub data preprocss start")
-    data_file_path = "data/data_example.csv"
-    # read_dataset_file_to_intent_dataset(data_file_path=data_file_path)
-    dataset_jsonl_transfer("data/bank.jsonl","data/bank_sft.jsonl")
+    # data_file_path = "data/data_example.csv"
+    # # read_dataset_file_to_intent_dataset(data_file_path=data_file_path)
+    # dataset_jsonl_transfer("data/bank.jsonl","data/bank_sft.jsonl")
+    data_example_process()
     
     
     
